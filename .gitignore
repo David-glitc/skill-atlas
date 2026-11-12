@@ -1,0 +1,8 @@
+profiles/
+*.scan.json
+local-scan.json
+github-scan.json
+matches.json
+matches.md
+atlas.html
+__pycache__/

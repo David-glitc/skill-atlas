@@ -1,0 +1,1071 @@
+<title>__ATLAS_TITLE__</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: an atlas of plates. Header readout, sticky plate index, radial map with a detail panel, then tools (combine, match a job, CV angles) and reference plates (fit, roles, research, services, evidence). Data comes from one profile JSON block. */
+:root {
+  --bg: #f3f5f8; --surface: #ffffff; --sunk: #e9edf2; --line: #d6dce4;
+  --ink: #121722; --ink-2: #3e4757; --ink-3: #657084; --accent: #1f4fa0;
+  --f1: #2a78d6; --f2: #eb6834; --f3: #1baf7a; --f0: #8a93a3;
+  --s0: #e6eaf0; --s1: #b7d3f6; --s2: #3987e5; --s3: #184f95;
+  --s0t: #8a93a3; --s1t: #12305c; --s2t: #ffffff; --s3t: #ffffff;
+  --good: #0ca30c; --warn: #fab219; --neutral: #8a93a3; --halo: #ffffff;
+  --font-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1116; --surface: #161b22; --sunk: #1d232c; --line: #2b333e;
+    --ink: #e9ecf1; --ink-2: #c1c8d3; --ink-3: #8c96a6; --accent: #86b6ef;
+    --f1: #3987e5; --f2: #d95926; --f3: #199e70; --f0: #8c96a6;
+    --s0: #20262f; --s1: #1c4a86; --s2: #3987e5; --s3: #9ec5f4;
+    --s0t: #6c7686; --s1t: #e9ecf1; --s2t: #ffffff; --s3t: #0d2547;
+    --halo: #161b22; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1116; --surface: #161b22; --sunk: #1d232c; --line: #2b333e;
+  --ink: #e9ecf1; --ink-2: #c1c8d3; --ink-3: #8c96a6; --accent: #86b6ef;
+  --f1: #3987e5; --f2: #d95926; --f3: #199e70; --f0: #8c96a6;
+  --s0: #20262f; --s1: #1c4a86; --s2: #3987e5; --s3: #9ec5f4;
+  --s0t: #6c7686; --s1t: #e9ecf1; --s2t: #ffffff; --s3t: #0d2547;
+  --halo: #161b22; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 28px 64px;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.wrap { max-width: 1200px; margin: 0 auto; display: grid; gap: 52px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.2rem, 5vw, 3.5rem); font-weight: 800; letter-spacing: -0.02em; line-height: 1.02; }
+h2 { font-size: clamp(1.4rem, 2.6vw, 1.85rem); font-weight: 700; letter-spacing: -0.01em; }
+h3 { font-size: 1.05rem; font-weight: 700; }
+h4 { margin: 0; font-size: 0.95rem; font-weight: 600; }
+p { margin: 0; }
+a { color: var(--accent); }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+.eyebrow, .lab { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.11em; text-transform: uppercase; color: var(--ink-3); }
+.lede { color: var(--ink-2); max-width: 66ch; }
+.muted { color: var(--ink-3); }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.small { font-size: 0.82rem; }
+.empty { font-size: 0.86rem; color: var(--ink-3); }
+
+.head { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 32px; align-items: end; }
+.head-id { display: grid; gap: 12px; }
+.head-id .role { font-family: var(--font-display); font-size: 1.15rem; font-weight: 500; color: var(--ink-2); }
+.readout { border: 1px solid var(--line); background: var(--surface); border-radius: 10px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); overflow: hidden; }
+.readout div { padding: 13px 15px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); display: grid; gap: 2px; margin: 0 -1px -1px 0; }
+.readout b { font-family: var(--font-display); font-size: 1.8rem; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.readout span { font-size: 0.78rem; color: var(--ink-3); line-height: 1.3; }
+.answer { border-left: 3px solid var(--ink); padding: 4px 0 4px 16px; display: grid; gap: 6px; max-width: 86ch; }
+.answer p { color: var(--ink-2); }
+.answer strong { color: var(--ink); }
+
+.toc { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); border-bottom: 1px solid var(--line); padding-block: 10px; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+.toc a { flex: none; color: var(--ink-2); text-decoration: none; font-size: 0.84rem; padding: 5px 10px; border-radius: 999px; }
+.toc a:hover { background: var(--sunk); color: var(--ink); }
+.toc a.on { background: var(--ink); color: var(--surface); }
+
+.plate { display: grid; gap: 18px; scroll-margin-top: 64px; }
+.plate-head { display: grid; gap: 8px; }
+.key { display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 0.84rem; color: var(--ink-2); align-items: center; }
+.key-item { display: inline-flex; align-items: center; gap: 7px; }
+.shape { width: 11px; height: 11px; display: inline-block; flex: none; background: var(--f0); }
+.shape.fam1 { background: var(--f1); border-radius: 50%; }
+.shape.fam2 { background: var(--f2); border-radius: 2px; }
+.shape.fam3 { background: var(--f3); transform: rotate(45deg) scale(0.85); border-radius: 1px; }
+.shape.fam0 { background: var(--f0); border-radius: 50%; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; padding: 3px 9px 3px 8px; border-radius: 999px; background: var(--sunk); color: var(--ink-2); white-space: nowrap; }
+button.chip { border: 0; cursor: pointer; }
+button.chip:hover { color: var(--ink); }
+.chip .shape { width: 8px; height: 8px; }
+.tier { display: inline-flex; gap: 6px; align-items: center; font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2); white-space: nowrap; }
+.tier i { display: inline-flex; gap: 2px; }
+.tier i b { width: 5px; height: 11px; border-radius: 1px; background: var(--line); display: block; }
+.tier i b.on { background: var(--ink); }
+.depth { display: inline-flex; gap: 3px; vertical-align: middle; }
+.depth b { width: 16px; height: 6px; border-radius: 2px; background: var(--line); display: block; }
+.depth b.on { background: var(--ink); }
+.st { display: inline-flex; gap: 5px; align-items: center; font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.05em; text-transform: uppercase; color: var(--ink-2); white-space: nowrap; }
+.st::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--neutral); flex: none; }
+.st.live::before { background: var(--good); }
+.st.preview::before { background: var(--warn); }
+
+.btn { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 6px 11px; cursor: pointer; font-size: 0.84rem; display: inline-flex; gap: 6px; align-items: center; }
+.btn:hover { border-color: var(--ink-3); }
+.btn.primary { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.btn[aria-pressed="true"] { background: var(--ink); color: var(--surface); border-color: var(--ink); }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; flex-wrap: wrap; }
+.seg button { border: 0; background: var(--surface); padding: 6px 11px; cursor: pointer; font-size: 0.84rem; border-right: 1px solid var(--line); }
+.seg button:last-child { border-right: 0; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+input[type="search"], input[type="text"], select, textarea { font-size: 0.88rem; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); }
+textarea { width: 100%; resize: vertical; line-height: 1.5; }
+
+/* Map */
+.map-grid { display: grid; grid-template-columns: minmax(0, 1.85fr) minmax(0, 1fr); gap: 18px; align-items: start; }
+.map-box { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; display: grid; min-width: 0; }
+.map-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--line); }
+.map-tools .grow { flex: 1 1 160px; position: relative; min-width: 0; }
+.map-tools input { width: 100%; }
+.search-res { position: absolute; left: 0; right: 0; top: calc(100% + 4px); background: var(--surface); border: 1px solid var(--line); border-radius: 8px; z-index: 6; max-height: 280px; overflow: auto; box-shadow: 0 8px 24px rgba(0,0,0,.12); }
+.search-res button { display: flex; width: 100%; justify-content: space-between; gap: 10px; border: 0; background: none; padding: 7px 10px; cursor: pointer; text-align: left; font-size: 0.86rem; }
+.search-res button:hover, .search-res button:focus-visible { background: var(--sunk); }
+.zoom { display: inline-flex; gap: 4px; }
+.zoom .btn { padding: 5px 9px; }
+.map-scroll { overflow-x: auto; }
+.map-scroll svg { display: block; width: 100%; min-width: 620px; height: auto; cursor: grab; touch-action: pan-x pan-y; user-select: none; }
+.map-scroll svg.dragging { cursor: grabbing; }
+.map-box .hint { font-size: 0.78rem; color: var(--ink-3); padding: 9px 12px; border-top: 1px solid var(--line); }
+.node { cursor: pointer; }
+.node:focus { outline: none; }
+.node:focus-visible .ring { stroke: var(--accent); stroke-width: 3; }
+.lbl { font-family: var(--font-body); fill: var(--ink); paint-order: stroke; stroke: var(--halo); stroke-width: 4px; stroke-linejoin: round; }
+.lbl.outer { font-size: 15px; font-weight: 600; }
+.lbl.outer.dense { font-size: 12px; font-weight: 500; }
+.lbl.cl { font-size: 13.5px; font-weight: 500; fill: var(--ink-2); }
+.dim { opacity: 0.32; }
+.edge { fill: none; }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: grid; gap: 14px; min-width: 0; align-content: start; }
+.panel h3 { font-size: 1.28rem; }
+.panel .sub { color: var(--ink-2); font-size: 0.92rem; }
+.panel section { display: grid; gap: 7px; }
+.plist { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.plist li { display: flex; gap: 8px; align-items: baseline; justify-content: space-between; font-size: 0.9rem; border-bottom: 1px dashed var(--line); padding-bottom: 5px; }
+.plist li:last-child { border-bottom: 0; }
+.plist li > :first-child { min-width: 0; }
+.linkish { border: 0; background: none; padding: 0; cursor: pointer; text-align: left; color: var(--ink); text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: 3px; }
+.linkish:hover { text-decoration-color: var(--ink); }
+
+/* Builder */
+.tool { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.45fr); }
+.tool > .side { padding: 18px; border-right: 1px solid var(--line); display: grid; gap: 16px; align-content: start; min-width: 0; }
+.tool > .main { padding: 18px; display: grid; gap: 18px; align-content: start; min-width: 0; }
+.fam-group { display: grid; gap: 8px; }
+.fam-group .lab { display: flex; gap: 8px; align-items: center; }
+.toggles { display: flex; flex-wrap: wrap; gap: 6px; }
+.sum { display: flex; flex-wrap: wrap; gap: 10px 22px; align-items: baseline; }
+.sum div { display: grid; }
+.sum b { font-family: var(--font-display); font-size: 1.65rem; font-weight: 800; line-height: 1.05; font-variant-numeric: tabular-nums; }
+.sum span { font-size: 0.76rem; color: var(--ink-3); }
+.cols2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.cols2 > section { display: grid; gap: 8px; align-content: start; min-width: 0; }
+.rlist { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.rlist li { font-size: 0.88rem; display: grid; gap: 2px; padding: 7px 10px; background: var(--sunk); border-radius: 7px; }
+.rlist li small { color: var(--ink-3); font-size: 0.78rem; }
+.rlist li.near { background: transparent; border: 1px dashed var(--line); }
+
+/* Matrix */
+.mx-box { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+table.mx { border-collapse: separate; border-spacing: 2px; font-size: 0.8rem; margin: 10px; }
+.mx thead th { font-size: 0.7rem; font-weight: 500; color: var(--ink-2); padding: 4px 1px 6px; vertical-align: bottom; width: 54px; line-height: 1.2; }
+.mx thead th button { border: 0; background: none; cursor: pointer; padding: 2px; border-radius: 4px; font-size: inherit; color: inherit; display: grid; justify-items: center; gap: 3px; width: 100%; }
+.mx thead th button[aria-pressed="true"] { background: var(--sunk); color: var(--ink); font-weight: 600; }
+.mx tbody th { text-align: left; padding: 0 12px 0 4px; white-space: nowrap; font-size: 0.84rem; font-weight: 500; }
+.mx td.c { width: 54px; height: 30px; text-align: center; border-radius: 3px; font-family: var(--font-mono); font-size: 0.74rem; }
+.mx td.v0 { background: var(--s0); color: var(--s0t); }
+.mx td.v1 { background: var(--s1); color: var(--s1t); }
+.mx td.v2 { background: var(--s2); color: var(--s2t); }
+.mx td.v3 { background: var(--s3); color: var(--s3t); }
+.mx td.tot { padding-left: 10px; min-width: 120px; }
+.bar { display: flex; align-items: center; gap: 8px; }
+.bar i { display: block; height: 8px; background: var(--ink); border-radius: 0 4px 4px 0; }
+.bar span { font-family: var(--font-mono); font-size: 0.74rem; color: var(--ink-2); }
+.mx-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 0.8rem; color: var(--ink-2); align-items: center; }
+.mx-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 16px; height: 12px; border-radius: 2px; display: inline-block; }
+
+/* Cards */
+.filters { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.count { font-size: 0.82rem; color: var(--ink-3); margin-left: auto; }
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 12px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: grid; gap: 9px; align-content: start; min-width: 0; }
+.card .top { display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+.card .fields { font-size: 0.78rem; color: var(--ink-3); }
+.card p { font-size: 0.88rem; color: var(--ink-2); }
+.card .note { font-size: 0.8rem; color: var(--ink-3); font-style: italic; }
+.cv { border-top: 1px dashed var(--line); padding-top: 10px; display: grid; gap: 8px; font-size: 0.85rem; }
+.cv ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; color: var(--ink-2); }
+.copyrow { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.copied { font-size: 0.78rem; color: var(--ink-3); }
+
+.combo dl, .rcard dl { margin: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 5px 10px; font-size: 0.86rem; }
+.combo dt, .rcard dt { color: var(--ink-3); font-family: var(--font-mono); font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; padding-top: 3px; }
+.combo dd, .rcard dd { margin: 0; color: var(--ink-2); }
+.offer { font-weight: 600; color: var(--ink) !important; }
+.formula { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.formula .x { color: var(--ink-3); font-family: var(--font-mono); font-size: 0.8rem; }
+.rcard.open-q dd.oq { color: var(--ink); }
+
+.patterns { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; }
+.pat { display: grid; gap: 6px; padding: 14px 16px; border-left: 3px solid var(--ink); background: var(--surface); border-radius: 0 10px 10px 0; }
+.pat p { font-size: 0.88rem; color: var(--ink-2); }
+.pat small { font-size: 0.78rem; color: var(--ink-3); }
+
+/* Stack */
+.stack { display: grid; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: var(--surface); }
+.layer { display: grid; grid-template-columns: 210px minmax(0, 1fr); border-bottom: 1px solid var(--line); }
+.layer:last-child { border-bottom: 0; }
+.layer-head { padding: 16px; background: var(--sunk); display: grid; gap: 6px; align-content: start; }
+.layer-head p { font-size: 0.84rem; color: var(--ink-2); }
+.svc { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.2fr) 150px; gap: 6px 16px; padding: 12px 16px; border-bottom: 1px dashed var(--line); align-items: start; }
+.svc:last-child { border-bottom: 0; }
+.svc p { font-size: 0.84rem; color: var(--ink-2); }
+.svc .proof { font-size: 0.8rem; color: var(--ink-3); }
+.svc .price { text-align: right; display: grid; gap: 2px; }
+.svc .price b { font-family: var(--font-mono); font-weight: 500; font-size: 0.86rem; }
+.svc .price span { font-size: 0.76rem; color: var(--ink-3); }
+
+.grid2 { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; }
+.box { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; display: grid; gap: 12px; align-content: start; min-width: 0; }
+.lane-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.lane-list li { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 10px; font-size: 0.9rem; }
+.lane-list li b { font-family: var(--font-mono); font-size: 0.68rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; padding-top: 3px; }
+.money { display: grid; gap: 8px; }
+.money-row { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) 58px; gap: 10px; align-items: center; font-size: 0.86rem; }
+.money-row i { display: block; height: 10px; background: var(--s2); border-radius: 0 4px 4px 0; }
+.money-row span:last-child { text-align: right; font-family: var(--font-mono); }
+.money-total { border-top: 1px solid var(--line); padding-top: 8px; display: flex; justify-content: space-between; font-weight: 600; }
+.ul { margin: 0; padding-left: 18px; display: grid; gap: 7px; font-size: 0.9rem; color: var(--ink-2); }
+
+/* Ledger */
+.ledger { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.ledger section { display: grid; gap: 8px; align-content: start; min-width: 0; }
+.ledger h3 { display: flex; gap: 8px; align-items: center; font-size: 1rem; }
+.led { list-style: none; margin: 0; padding: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+.led li { border-bottom: 1px solid var(--line); }
+.led li:last-child { border-bottom: 0; }
+.led button { display: grid; gap: 2px; width: 100%; text-align: left; border: 0; background: none; padding: 9px 12px; cursor: pointer; }
+.led button:hover { background: var(--sunk); }
+.led .row { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.led .nm { font-weight: 600; font-size: 0.88rem; }
+.led small { color: var(--ink-3); font-size: 0.78rem; }
+
+/* Match */
+.meter { display: grid; gap: 4px; }
+.meter-track { height: 10px; background: var(--sunk); border-radius: 5px; overflow: hidden; }
+.meter-track i { display: block; height: 100%; background: var(--s2); }
+.draft { background: var(--sunk); border-radius: 8px; padding: 12px; font-size: 0.88rem; color: var(--ink-2); white-space: pre-wrap; }
+
+/* Make yours */
+.drop { border: 2px dashed var(--line); border-radius: 12px; padding: 22px; display: grid; gap: 10px; justify-items: start; background: var(--surface); }
+.drop.over { border-color: var(--accent); }
+.steps { margin: 0; padding-left: 20px; display: grid; gap: 8px; color: var(--ink-2); }
+code, pre { font-family: var(--font-mono); font-size: 0.82rem; }
+pre { background: var(--sunk); padding: 10px 12px; border-radius: 8px; overflow-x: auto; margin: 0; }
+.err { color: var(--ink); background: var(--sunk); border-left: 3px solid #d03b3b; padding: 8px 12px; border-radius: 0 8px 8px 0; font-size: 0.86rem; }
+
+.foot { font-size: 0.8rem; color: var(--ink-3); border-top: 1px solid var(--line); padding-top: 16px; display: grid; gap: 4px; }
+#tip { position: fixed; pointer-events: none; z-index: 20; background: var(--ink); color: var(--surface); font-size: 0.78rem; padding: 6px 9px; border-radius: 6px; max-width: 280px; line-height: 1.35; }
+
+@media (max-width: 980px) {
+  .head, .map-grid, .tool, .grid2 { grid-template-columns: minmax(0, 1fr); }
+  .tool > .side { border-right: 0; border-bottom: 1px solid var(--line); }
+  .ledger { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .layer { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 640px) {
+  .readout { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cols2, .ledger { grid-template-columns: minmax(0, 1fr); }
+  .svc { grid-template-columns: minmax(0, 1fr); }
+  .svc .price { text-align: left; }
+  .count { margin-left: 0; width: 100%; }
+}
+</style>
+
+<script id="atlas-data" type="application/json">__ATLAS_DATA__</script>
+
+<div class="wrap" id="app">
+  <header class="head" id="head"></header>
+  <div class="answer" id="answer"></div>
+
+  <nav class="toc" id="toc" aria-label="Plates">
+    <a href="#map">Map</a><a href="#combine">Combine</a><a href="#match">Match a job</a><a href="#roles">Job titles</a><a href="#fit">Field fit</a><a href="#research">Research</a><a href="#thinking">How you think</a><a href="#combos">Combinations</a><a href="#stack">Services</a><a href="#lane">Lane</a><a href="#evidence">Evidence</a><a href="#make">Make yours</a>
+  </nav>
+
+  <section class="plate" id="map">
+    <div class="plate-head">
+      <span class="eyebrow">Plate 1</span>
+      <h2>Capability map</h2>
+      <p class="lede">Skills sit on the inner ring. Switch the outer ring between fields, job titles and projects. Select a node, search, or zoom in to follow the links.</p>
+      <div class="key" id="famKey"></div>
+    </div>
+    <div class="map-grid">
+      <div class="map-box">
+        <div class="map-tools">
+          <div class="seg" id="layerSeg" role="group" aria-label="Outer ring"></div>
+          <div class="grow">
+            <input type="search" id="mapSearch" placeholder="Find a skill, field, role or project" aria-label="Search the map" autocomplete="off">
+            <div class="search-res" id="searchRes" hidden></div>
+          </div>
+          <div class="zoom">
+            <button type="button" class="btn" id="zIn" aria-label="Zoom in">+</button>
+            <button type="button" class="btn" id="zOut" aria-label="Zoom out">−</button>
+            <button type="button" class="btn" id="zReset">Reset</button>
+          </div>
+        </div>
+        <div class="map-scroll"><svg id="mapSvg" role="img" aria-label="Radial capability map"></svg></div>
+        <div class="hint">Drag to pan with a mouse. Pinch or Ctrl + scroll to zoom. Thick lines mark core links; dashed lines appear for light links after you select a node.</div>
+      </div>
+      <aside class="panel" id="panel" aria-live="polite"></aside>
+    </div>
+  </section>
+
+  <section class="plate" id="combine">
+    <div class="plate-head">
+      <span class="eyebrow">Plate 2</span>
+      <h2>Combine skills</h2>
+      <p class="lede">Pick the skills you want to sell together. You get the roles they fully cover, the roles one skill away, and the services and signature combinations that use them.</p>
+    </div>
+    <div class="tool"><div class="side" id="picker"></div><div class="main" id="results"></div></div>
+  </section>
+
+  <section class="plate" id="match">
+    <div class="plate-head">
+      <span class="eyebrow">Plate 3</span>
+      <h2>Match a job post</h2>
+      <p class="lede">Paste any job description. The atlas scores it against your skills, picks your closest role, lists the projects to cite, and drafts an opening and a profile headline you can edit. Everything runs in this page.</p>
+    </div>
+    <div class="tool">
+      <div class="side">
+        <label class="lab" for="jd">Job post</label>
+        <textarea id="jd" rows="14"></textarea>
+        <div class="copyrow"><button type="button" class="btn primary" id="jdRun">Match</button><button type="button" class="btn" id="jdSample">Load sample</button></div>
+      </div>
+      <div class="main" id="jdOut"></div>
+    </div>
+  </section>
+
+  <section class="plate" id="roles">
+    <div class="plate-head">
+      <span class="eyebrow">Plate 4</span>
+      <h2>Job titles you fit</h2>
+      <p class="lede">Strong means your projects match most lines of a typical job description. Good means real proof with a gap in scale or depth. Stretch means one more project or credential gets you there. Open a card's CV angle for ready bullets.</p>
+    </div>
+    <div class="filters">
+      <input type="search" id="roleSearch" placeholder="Search titles" aria-label="Search job titles">
+      <select id="fieldSel" aria-label="Field"></select>
+      <div class="seg" id="tierSeg" role="group" aria-label="Fit level"></div>
+      <span class="count" id="roleCount"></span>
+    </div>
+    <div class="cards" id="roleCards"></div>
+  </section>
+
+  <section class="plate" id="fit">
+    <div class="plate-head">
+      <span class="eyebrow">Plate 5</span>
+      <h2>Field fit</h2>
+      <p class="lede">Rows are fields, columns are skill clusters. Darker cells mean the skill is more central to how you would work in that field. Select a column to sort by it.</p>
+      <div class="mx-legend">
+        <span><i class="sw" style="background:var(--s0)"></i>Not used</span>
+        <span><i class="sw" style="background:var(--s1)"></i>1 · Touches it</span>
+        <span><i class="sw" style="background:var(--s2)"></i>2 · Solid</span>
+        <span><i class="sw" style="background:var(--s3)"></i>3 · Core</span>
+      </div>
+    </div>
+    <div class="mx-box"><table class="mx" id="mx"></table></div>
+  </section>
+
+  <section class="plate" id="research">
+    <div class="plate-head">
+      <span class="eyebrow">Plate 6</span>
+      <h2>Research</h2>
+      <p class="lede" id="researchLede">Questions you have worked on, how you tested them and what came out.</p>
+    </div>
+    <div class="cards" id="researchCards"></div>
+  </section>
+
+  <section class="plate" id="thinking">
+    <div class="plate-head">
+      <span class="eyebrow">Plate 7</span>
+      <h2>How you think</h2>
+      <p class="lede">Patterns read from the work itself. Treat them as a starting point for discussion, not a verdict.</p>
+    </div>
+    <div class="patterns" id="patterns"></div>
+  </section>
+
+  <section class="plate" id="combos">
+    <div class="plate-head">
+      <span class="eyebrow">Plate 8</span>
+      <h2>Signature combinations</h2>
+      <p class="lede">Overlaps where you have proof in every ingredient. Most candidates bring one or two of these skills. Selling the overlap is how you stop looking scattered.</p>
+    </div>
+    <div class="cards" id="comboCards"></div>
+  </section>
+
+  <section class="plate" id="stack">
+    <div class="plate-head">
+      <span class="eyebrow">Plate 9</span>
+      <h2>Service stack</h2>
+      <p class="lede">A menu from the highest-value offers at the top to the products already running at the bottom. Each line names the project that proves it.</p>
+      <p class="small muted" id="priceNote"></p>
+    </div>
+    <div class="stack" id="stackBox"></div>
+  </section>
+
+  <section class="plate" id="lane">
+    <div class="plate-head"><span class="eyebrow">Plate 10</span><h2>Lead lane, gaps and strengths</h2></div>
+    <div class="grid2" id="laneBox"></div>
+  </section>
+
+  <section class="plate" id="evidence">
+    <div class="plate-head">
+      <span class="eyebrow">Plate 11</span>
+      <h2>Evidence ledger</h2>
+      <p class="lede">Every project behind the claims on this page. Select one to see it on the map.</p>
+      <div class="filters">
+        <input type="search" id="ledSearch" placeholder="Search projects" aria-label="Search projects">
+        <div class="seg" id="ledSeg" role="group" aria-label="State"></div>
+      </div>
+    </div>
+    <div class="ledger" id="ledgerBox"></div>
+  </section>
+
+  <section class="plate" id="make">
+    <div class="plate-head">
+      <span class="eyebrow">Plate 12</span>
+      <h2>Make your own atlas</h2>
+      <p class="lede">This page renders any profile file in the same format. Your coding agent can build one from your projects with the skill-atlas skill, then you drop the file here or build a page of your own.</p>
+    </div>
+    <div class="grid2">
+      <div class="box">
+        <h3>With the skill</h3>
+        <ol class="steps" id="makeSteps"></ol>
+      </div>
+      <div class="drop" id="drop">
+        <h3>Open a profile file</h3>
+        <p class="small muted">Drop a <code>profile.json</code> here or choose one. It stays in this browser tab and is never uploaded.</p>
+        <div class="copyrow">
+          <label class="btn primary" for="fileIn">Choose file</label>
+          <input type="file" id="fileIn" accept=".json,application/json" hidden>
+          <button type="button" class="btn" id="resetData">Back to the original</button>
+          <button type="button" class="btn" id="copyJson">Copy this profile's JSON</button>
+        </div>
+        <span class="copied" id="dropMsg"></span>
+        <details>
+          <summary class="small">Or paste JSON</summary>
+          <textarea id="pasteJson" rows="6" placeholder='{"schema": "skill-atlas/1", ...}'></textarea>
+          <button type="button" class="btn" id="pasteGo">Render pasted JSON</button>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot" id="foot"></footer>
+</div>
+<div id="tip" hidden></div>
+
+<script>
+(function () {
+  'use strict';
+  const ORIGINAL = JSON.parse(document.getElementById('atlas-data').textContent);
+  const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+  const NS = 'http://www.w3.org/2000/svg';
+  const TAU = Math.PI * 2;
+  const TIERS = { 3: 'Strong fit', 2: 'Good fit', 1: 'Stretch' };
+  const STATUS_CLASS = { live: 'live', preview: 'preview' };
+  let D = null;
+
+  // ---------- data ----------
+  function normalize(raw) {
+    const req = ['person', 'families', 'clusters', 'fields', 'roles', 'evidence'];
+    const miss = req.filter(k => !raw || raw[k] == null);
+    if (miss.length) throw new Error('Missing required keys: ' + miss.join(', '));
+    const d = JSON.parse(JSON.stringify(raw));
+    d.combos = d.combos || []; d.services = d.services || []; d.layers = d.layers || []; d.research = d.research || [];
+    d.patterns = d.patterns || []; d.lane = d.lane || []; d.gaps = d.gaps || []; d.strengths = d.strengths || []; d.stats = d.stats || [];
+    d.famIndex = {}; d.families.forEach((f, i) => { d.famIndex[f.id] = i < 3 ? i + 1 : 0; });
+    d.C = {}; d.clusters.forEach(c => { d.C[c.id] = c; c.depth = +c.depth || 1; c.keywords = c.keywords || []; c.skills = c.skills || []; });
+    d.cids = d.clusters.map(c => c.id);
+    d.F = {}; d.fields.forEach(f => { d.F[f.id] = f; f.weights = f.weights || {}; f.total = d.cids.reduce((a, c) => a + (+f.weights[c] || 0), 0); });
+    d.R = {}; d.roles.forEach((r, i) => { r.id = r.id || 'r' + i; d.R[r.id] = r; r.fields = (r.fields || []).filter(x => d.F[x]); r.clusters = (r.clusters || []).filter(x => d.C[x]); r.tier = +r.tier || 2; });
+    d.E = {}; d.evidence.forEach((e, i) => { e.id = e.id || 'e' + i; d.E[e.id] = e; e.clusters = (e.clusters || []).filter(x => d.C[x]); });
+    d.combos.forEach(c => { c.clusters = (c.clusters || []).filter(x => d.C[x]); });
+    d.services.forEach(s => { s.clusters = (s.clusters || []).filter(x => d.C[x]); });
+    const bad = d.roles.filter(r => !r.clusters.length).map(r => r.title);
+    if (bad.length) console.warn('Roles with no known clusters:', bad);
+    return d;
+  }
+  const w = (fid, cid) => +(D.F[fid].weights[cid] || 0);
+  const famCls = cid => 'fam' + (D.famIndex[D.C[cid].family] || 0);
+  const famVar = cid => 'var(--f' + (D.famIndex[D.C[cid].family] || 0) + ')';
+  const shape = cls => `<i class="shape ${cls}" aria-hidden="true"></i>`;
+  const chip = cid => `<span class="chip">${shape(famCls(cid))}${esc(D.C[cid].short || D.C[cid].name)}</span>`;
+  const tierPill = t => `<span class="tier"><i aria-hidden="true">${[1, 2, 3].map(k => `<b class="${k <= t ? 'on' : ''}"></b>`).join('')}</i>${TIERS[t]}</span>`;
+  const depthBar = d => `<span class="depth" aria-label="Depth ${d} of 5">${[1, 2, 3, 4, 5].map(k => `<b class="${k <= d ? 'on' : ''}"></b>`).join('')}</span>`;
+  const stPill = e => `<span class="st ${STATUS_CLASS[e.status] || ''}">${esc(e.label || e.status || '')}</span>`;
+  const services = () => D.services.filter(s => !s.product);
+  const products = () => D.services.filter(s => s.product);
+
+  // ---------- tooltip ----------
+  const tip = $('#tip');
+  document.addEventListener('pointermove', e => {
+    const t = e.target.closest && e.target.closest('[data-tip]');
+    if (!t) { tip.hidden = true; return; }
+    tip.textContent = t.getAttribute('data-tip'); tip.hidden = false;
+    const W = tip.offsetWidth, H = tip.offsetHeight;
+    let l = e.clientX + 14, tp = e.clientY + 14;
+    if (l + W > innerWidth - 8) l = e.clientX - W - 14;
+    if (tp + H > innerHeight - 8) tp = e.clientY - H - 14;
+    tip.style.left = Math.max(8, l) + 'px'; tip.style.top = Math.max(8, tp) + 'px';
+  });
+
+  function copyText(text, btn, note) {
+    const done = msg => { if (note) note.textContent = msg; else if (btn) { const o = btn.textContent; btn.textContent = msg; setTimeout(() => { btn.textContent = o; }, 1600); } };
+    try {
+      navigator.clipboard.writeText(text).then(() => done('Copied'), () => fallback());
+    } catch (e) { fallback(); }
+    function fallback() {
+      const ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      let ok = false; try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      document.body.removeChild(ta);
+      done(ok ? 'Copied' : 'Copy blocked here. Select the text and copy it by hand.');
+    }
+  }
+
+  // ---------- header ----------
+  function renderHeader() {
+    const p = D.person;
+    const strong = D.roles.filter(r => r.tier === 3).length, good = D.roles.filter(r => r.tier === 2).length, stretch = D.roles.filter(r => r.tier === 1).length;
+    document.title = (p.name ? p.name + ' ' : '') + 'Skill Atlas';
+    $('#head').innerHTML = `
+      <div class="head-id">
+        <span class="eyebrow">Skill atlas${p.generated ? ' · compiled ' + esc(p.generated) : ''}</span>
+        <h1>${esc(p.name || 'Unnamed')}</h1>
+        ${p.headline ? `<p class="role">${esc(p.headline)}</p>` : ''}
+        ${p.summary ? `<p class="lede">${esc(p.summary)}</p>` : ''}
+        ${(p.links || []).length ? `<div class="chips">${p.links.map(l => `<a class="chip" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a>`).join('')}</div>` : ''}
+      </div>
+      ${D.stats.length ? `<div class="readout" aria-label="Evidence counts">${D.stats.map(s => `<div><b>${esc(s.value)}</b><span>${esc(s.label)}</span></div>`).join('')}</div>` : ''}`;
+    $('#answer').innerHTML = `<span class="eyebrow">The short answer</span><p><strong>${D.clusters.length} skill clusters</strong> feed <strong>${D.fields.length} distinct fields</strong>. Across them you fit <strong>${D.roles.length} job titles</strong>: ${strong} strong, ${good} good and ${stretch} stretch. The rare value sits in <strong>${D.combos.length} signature combinations</strong>, which turn into <strong>${services().length} services</strong>${products().length ? ` plus ${products().length} products already running` : ''}.</p>`;
+    $('#famKey').innerHTML = D.families.map((f, i) => `<span class="key-item">${shape('fam' + (i < 3 ? i + 1 : 0))}${esc(f.name)}: ${D.clusters.filter(c => c.family === f.id).map(c => esc(c.short || c.name)).join(', ')}</span>`).join('');
+    $('#foot').innerHTML = (D.person.sources ? `<span>${esc(D.person.sources)}</span>` : '') + `<span>Rendered by the skill-atlas template. Fit levels and depths are judgement calls from the evidence listed in the ledger.</span>`;
+  }
+
+  // ---------- map ----------
+  const M = { layer: 'fields', sel: null, view: null, base: { x: -540, y: -400, w: 1080, h: 800 }, nodes: {}, edges: [] };
+  function el(tag, attrs, parent) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+  function outerList(layer) {
+    if (layer === 'roles') return D.roles.map(r => ({ key: r.id, kind: 'role', label: r.title, tipText: `${r.title} · ${TIERS[r.tier]}`, wts: Object.fromEntries(r.clusters.map(c => [c, r.tier === 3 ? 3 : 2])) }));
+    if (layer === 'projects') return D.evidence.map(e => ({ key: e.id, kind: 'project', label: e.name, tipText: `${e.name} · ${e.label || e.status || ''}`, wts: Object.fromEntries(e.clusters.map(c => [c, 2])) }));
+    return D.fields.map(f => ({ key: f.id, kind: 'field', label: f.short || f.name, tipText: `${f.name} · fit ${f.total}`, wts: f.weights }));
+  }
+  function setView(v) { M.view = { ...v, layer: v.layer || (M.view && M.view.layer) || M.layer }; $('#mapSvg').setAttribute('viewBox', `${v.x.toFixed(1)} ${v.y.toFixed(1)} ${v.w.toFixed(1)} ${v.h.toFixed(1)}`); }
+  function zoomBy(f, cx, cy) {
+    const v = M.view; const nw = Math.min(M.base.w * 1.4, Math.max(M.base.w / 5, v.w * f)); const k = nw / v.w;
+    if (cx == null) { cx = v.x + v.w / 2; cy = v.y + v.h / 2; }
+    setView({ x: cx - (cx - v.x) * k, y: cy - (cy - v.y) * k, w: v.w * k, h: v.h * k });
+  }
+  function drawMap() {
+    const svg = $('#mapSvg'); svg.innerHTML = ''; M.nodes = {}; M.edges = [];
+    const denseRing = outerList(M.layer).length > 20;
+    M.base = denseRing ? { x: -560, y: -540, w: 1120, h: 1080 } : { x: -540, y: -400, w: 1080, h: 800 };
+    if (!M.view || M.view.layer !== M.layer) setView({ ...M.base, layer: M.layer });
+    const R1 = 150, R2 = 300;
+    const gE = el('g', {}, svg), gS = el('g', {}, svg), gN = el('g', {}, svg);
+    el('circle', { cx: 0, cy: 0, r: R1, fill: 'none', stroke: 'var(--line)', 'stroke-dasharray': '2 5' }, gE);
+    el('circle', { cx: 0, cy: 0, r: R2, fill: 'none', stroke: 'var(--line)', 'stroke-dasharray': '2 5' }, gE);
+    const cPos = {};
+    const ordered = [...D.clusters].sort((a, b) => (D.famIndex[a.family] || 9) - (D.famIndex[b.family] || 9));
+    ordered.forEach((c, i) => { const a = -Math.PI / 2 + i * TAU / ordered.length; cPos[c.id] = { a, x: R1 * Math.cos(a), y: R1 * Math.sin(a) }; });
+    const outer = outerList(M.layer);
+    const means = outer.map(o => { let x = 0, y = 0; for (const c in o.wts) { if (!cPos[c]) continue; const ww = (+o.wts[c]) ** 2; x += ww * Math.cos(cPos[c].a); y += ww * Math.sin(cPos[c].a); } return { o, a: Math.atan2(y, x) }; })
+      .sort((p, q) => ((p.a + TAU + Math.PI / 2) % TAU) - ((q.a + TAU + Math.PI / 2) % TAU));
+    const step = TAU / Math.max(1, outer.length); let ox = 0, oy = 0;
+    means.forEach((m, i) => { const dd = m.a - i * step; ox += Math.cos(dd); oy += Math.sin(dd); });
+    const off = Math.atan2(oy, ox); const oPos = {};
+    means.forEach((m, i) => { const a = off + i * step; oPos[m.o.key] = { a, x: R2 * Math.cos(a), y: R2 * Math.sin(a) }; });
+    const dense = outer.length > 20;
+
+    outer.forEach(o => {
+      for (const cid in o.wts) {
+        const s = +o.wts[cid]; if (!s || !cPos[cid]) continue;
+        const p = cPos[cid], q = oPos[o.key];
+        const path = el('path', { d: `M${p.x.toFixed(1)},${p.y.toFixed(1)} Q${(p.x * 1.6).toFixed(1)},${(p.y * 1.6).toFixed(1)} ${q.x.toFixed(1)},${q.y.toFixed(1)}`, class: 'edge', stroke: famVar(cid), 'stroke-width': s >= 3 ? 2.6 : s === 2 ? 1.3 : 1, 'stroke-dasharray': s === 1 ? '3 4' : 'none', 'stroke-linecap': 'round' }, gE);
+        M.edges.push({ o: o.key, c: cid, s, el: path });
+      }
+    });
+    D.clusters.forEach(c => { const p = cPos[c.id]; el('line', { x1: 0, y1: 0, x2: p.x, y2: p.y, stroke: 'var(--line)', 'stroke-width': 0.6 + c.depth * 0.45 }, gS); });
+
+    el('circle', { cx: 0, cy: 0, r: 42, fill: 'var(--ink)' }, gN);
+    const first = (D.person.name || 'You').split(' ')[0];
+    const t1 = el('text', { x: 0, y: -2, 'text-anchor': 'middle', 'font-family': 'var(--font-display)', 'font-size': 17, 'font-weight': 700, fill: 'var(--surface)' }, gN); t1.textContent = first;
+    const t2 = el('text', { x: 0, y: 16, 'text-anchor': 'middle', 'font-family': 'var(--font-mono)', 'font-size': 10, fill: 'var(--surface)', opacity: 0.75 }, gN); t2.textContent = D.clusters.length + ' skills';
+
+    const bindNode = (g, kind, key) => {
+      g.addEventListener('click', ev => { if (M.dragMoved) return; ev.stopPropagation(); select(kind, key); });
+      g.addEventListener('keydown', ev => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); select(kind, key); } });
+      g.addEventListener('pointerenter', () => preview(kind, key));
+      g.addEventListener('pointerleave', () => preview(null));
+    };
+    D.clusters.forEach(c => {
+      const p = cPos[c.id], r = 7 + c.depth * 1.8, fi = D.famIndex[c.family] || 0;
+      const g = el('g', { class: 'node', tabindex: 0, role: 'button', 'aria-label': `${c.name}, depth ${c.depth} of 5`, 'data-tip': `${c.name} · depth ${c.depth}/5` }, gN);
+      const fill = famVar(c.id), common = { fill, stroke: 'var(--surface)', 'stroke-width': 2, class: 'ring' };
+      if (fi === 2) el('rect', { ...common, x: p.x - r * 0.88, y: p.y - r * 0.88, width: r * 1.76, height: r * 1.76, rx: 3 }, g);
+      else if (fi === 3) el('rect', { ...common, x: p.x - r * 0.8, y: p.y - r * 0.8, width: r * 1.6, height: r * 1.6, rx: 2, transform: `rotate(45 ${p.x} ${p.y})` }, g);
+      else el('circle', { ...common, cx: p.x, cy: p.y, r }, g);
+      const lr = R1 + r + 8, cs = Math.cos(p.a), sn = Math.sin(p.a);
+      const t = el('text', { x: lr * cs, y: lr * sn + (sn > 0.6 ? 12 : sn < -0.6 ? -4 : 5), 'text-anchor': Math.abs(cs) < 0.28 ? 'middle' : cs > 0 ? 'start' : 'end', class: 'lbl cl' }, g);
+      t.textContent = c.short || c.name;
+      M.nodes['c:' + c.id] = g; bindNode(g, 'cluster', c.id);
+    });
+    outer.forEach(o => {
+      const p = oPos[o.key];
+      const g = el('g', { class: 'node', tabindex: 0, role: 'button', 'aria-label': o.tipText, 'data-tip': o.tipText }, gN);
+      el('circle', { cx: p.x, cy: p.y, r: dense ? 6 : 9, fill: 'var(--surface)', stroke: 'var(--ink)', 'stroke-width': 2, class: 'ring' }, g);
+      el('circle', { cx: p.x, cy: p.y, r: dense ? 2.2 : 3.2, fill: 'var(--ink)' }, g);
+      let t;
+      if (dense) {
+        const lr = R2 + 12, deg = p.a * 180 / Math.PI, flip = Math.cos(p.a) < 0;
+        const lx = lr * Math.cos(p.a), ly = lr * Math.sin(p.a);
+        t = el('text', { x: lx, y: ly, 'text-anchor': flip ? 'end' : 'start', 'dominant-baseline': 'middle', transform: `rotate(${flip ? deg + 180 : deg} ${lx} ${ly})`, class: 'lbl outer dense' }, g);
+        t.textContent = o.label.length > 30 ? o.label.slice(0, 29) + '…' : o.label;
+      } else {
+        const lr = R2 + 17, cs = Math.cos(p.a), sn = Math.sin(p.a);
+        t = el('text', { x: lr * cs, y: lr * sn + (sn > 0.6 ? 14 : sn < -0.6 ? -4 : 5), 'text-anchor': Math.abs(cs) < 0.28 ? 'middle' : cs > 0 ? 'start' : 'end', class: 'lbl outer' }, g);
+        t.textContent = o.label;
+      }
+      M.nodes['o:' + o.key] = g; bindNode(g, o.kind, o.key);
+    });
+    paint();
+  }
+  function linkedSets(kind, key) {
+    if (kind === 'cluster') return { cl: new Set([key]), out: new Set(M.edges.filter(e => e.c === key).map(e => e.o)), edge: e => e.c === key };
+    return { cl: new Set(M.edges.filter(e => e.o === key).map(e => e.c)), out: new Set([key]), edge: e => e.o === key };
+  }
+  function paint(hover) {
+    const s = hover || M.sel;
+    if (!s) { M.edges.forEach(e => { e.el.style.opacity = e.s === 1 ? 0 : 0.35; }); Object.values(M.nodes).forEach(n => n.classList.remove('dim')); return; }
+    const L = linkedSets(s.kind, s.key);
+    M.edges.forEach(e => { const on = L.edge(e); e.el.style.opacity = on ? (e.s === 1 ? 0.7 : 0.95) : (e.s === 1 ? 0 : 0.05); });
+    D.clusters.forEach(c => M.nodes['c:' + c.id] && M.nodes['c:' + c.id].classList.toggle('dim', !L.cl.has(c.id)));
+    Object.keys(M.nodes).filter(k => k.startsWith('o:')).forEach(k => M.nodes[k].classList.toggle('dim', !L.out.has(k.slice(2))));
+  }
+  function preview(kind, key) { if (!kind) paint(); else paint({ kind, key }); }
+  const layerOf = kind => kind === 'role' ? 'roles' : kind === 'project' ? 'projects' : kind === 'field' ? 'fields' : null;
+
+  function select(kind, key) {
+    const want = layerOf(kind);
+    if (want && want !== M.layer) { M.layer = want; renderLayerSeg(); drawMap(); }
+    M.sel = { kind, key }; paint(); renderPanel();
+  }
+  function servicesFor(clusterIds, weightFn) {
+    return services().map(s => ({ s, m: s.clusters.length ? s.clusters.reduce((a, c) => a + weightFn(c), 0) / s.clusters.length : 0 })).filter(x => x.m >= 2).sort((a, b) => b.m - a.m).slice(0, 4).map(x => x.s);
+  }
+  // clusterIds is ordered by importance: the first skill weighs most, so a trading role cites trading work first.
+  function evidenceFor(clusterIds, n) {
+    const rank = { live: 0, preview: 1 }, L = clusterIds.length;
+    const k = e => clusterIds.reduce((a, c, i) => a + (e.clusters.includes(c) ? L - i : 0), 0);
+    return D.evidence.map(e => ({ e, k: k(e) })).filter(x => x.k > 0)
+      .sort((a, b) => b.k - a.k || (rank[a.e.status] ?? 2) - (rank[b.e.status] ?? 2) || (b.e.bullet ? 1 : 0) - (a.e.bullet ? 1 : 0)).slice(0, n).map(x => x.e);
+  }
+  const evLink = e => `<button type="button" class="linkish" data-ev="${esc(e.id)}">${esc(e.name)}</button>`;
+  const roleLink = r => `<button type="button" class="linkish" data-role="${esc(r.id)}">${esc(r.title)}</button>`;
+
+  function renderPanel() {
+    const panel = $('#panel'); const s = M.sel; if (!s) { panel.innerHTML = '<p class="empty">Select a node on the map.</p>'; return; }
+    if (s.kind === 'field') {
+      const f = D.F[s.key];
+      const core = D.clusters.filter(c => w(f.id, c.id) >= 3), solid = D.clusters.filter(c => w(f.id, c.id) === 2);
+      const roles = D.roles.filter(r => r.fields.includes(f.id)).sort((a, b) => b.tier - a.tier);
+      const svcs = servicesFor(null, c => w(f.id, c));
+      panel.innerHTML = `<span class="eyebrow">Field · fit ${f.total} of ${D.clusters.length * 3}</span><h3>${esc(f.name)}</h3>${f.want ? `<p class="sub">${esc(f.want)}</p>` : ''}
+        <section><span class="lab">Core skills</span><div class="chips">${core.map(c => chip(c.id)).join('') || '<span class="empty">None at core level</span>'}</div></section>
+        ${solid.length ? `<section><span class="lab">Solid skills</span><div class="chips">${solid.map(c => chip(c.id)).join('')}</div></section>` : ''}
+        <section><span class="lab">Roles in this field (${roles.length})</span><ul class="plist">${roles.map(r => `<li>${roleLink(r)}${tierPill(r.tier)}</li>`).join('') || '<li><span class="empty">No titled roles yet</span></li>'}</ul></section>
+        ${svcs.length ? `<section><span class="lab">Services that fit</span><ul class="plist">${svcs.map(x => `<li><span>${esc(x.name)}</span><span class="mono muted small">${esc(x.band || '')}</span></li>`).join('')}</ul></section>` : ''}`;
+    } else if (s.kind === 'cluster') {
+      const c = D.C[s.key];
+      const feeds = D.fields.filter(f => w(f.id, c.id) >= 2).sort((a, b) => w(b.id, c.id) - w(a.id, c.id));
+      const roles = D.roles.filter(r => r.clusters.includes(c.id)).sort((a, b) => b.tier - a.tier);
+      const ev = D.evidence.filter(e => e.clusters.includes(c.id));
+      panel.innerHTML = `<span class="eyebrow">${shape(famCls(c.id))} ${esc((D.families.find(f => f.id === c.family) || {}).name || '')} · skill cluster</span><h3>${esc(c.name)}</h3>
+        <div class="copyrow"><span class="lab">Depth</span>${depthBar(c.depth)}<span class="mono muted small">${c.depth}/5</span></div>
+        ${c.skills.length ? `<section><span class="lab">What it covers</span><p class="sub">${esc(c.skills.join(', '))}</p></section>` : ''}
+        <section><span class="lab">Proof (${ev.length})</span><div class="sub">${ev.slice(0, 10).map(evLink).join(', ') || '<span class="empty">No projects tagged</span>'}</div></section>
+        <section><span class="lab">Opens these fields</span><div class="chips">${feeds.map(f => `<span class="chip">${esc(f.short || f.name)} · ${w(f.id, c.id) >= 3 ? 'core' : 'solid'}</span>`).join('')}</div></section>
+        <section><span class="lab">Roles that use it (${roles.length})</span><ul class="plist">${roles.slice(0, 8).map(r => `<li>${roleLink(r)}${tierPill(r.tier)}</li>`).join('')}</ul></section>`;
+    } else if (s.kind === 'role') {
+      const r = D.R[s.key]; const ev = evidenceFor(r.clusters, 5);
+      panel.innerHTML = `<span class="eyebrow">Job title</span><h3>${esc(r.title)}</h3><div>${tierPill(r.tier)}</div>
+        <section><span class="lab">Skills it draws on</span><div class="chips">${r.clusters.map(chip).join('')}</div></section>
+        <section><span class="lab">Fields</span><p class="sub">${r.fields.map(f => esc(D.F[f].name)).join(' · ')}</p></section>
+        ${r.proof ? `<section><span class="lab">Proof</span><p class="sub">${esc(r.proof)}</p></section>` : ''}
+        ${r.gap ? `<section><span class="lab">Gap</span><p class="sub">${esc(r.gap)}</p></section>` : ''}
+        <section><span class="lab">Projects to cite</span><div class="sub">${ev.map(evLink).join(', ')}</div></section>`;
+    } else {
+      const e = D.E[s.key];
+      const roles = D.roles.filter(r => r.clusters.some(c => e.clusters.includes(c))).sort((a, b) => b.clusters.filter(c => e.clusters.includes(c)).length - a.clusters.filter(c => e.clusters.includes(c)).length || b.tier - a.tier).slice(0, 6);
+      panel.innerHTML = `<span class="eyebrow">Project</span><h3>${esc(e.name)}</h3><div>${stPill(e)}</div>
+        ${e.summary ? `<p class="sub">${esc(e.summary)}</p>` : ''}
+        ${e.url ? `<p class="small"><a href="${esc(e.url)}" target="_blank" rel="noopener">${esc(e.url.replace(/^https?:\/\//, ''))}</a></p>` : ''}
+        <section><span class="lab">Skills shown</span><div class="chips">${e.clusters.map(chip).join('')}</div></section>
+        ${e.bullet ? `<section><span class="lab">CV line</span><p class="sub">${esc(e.bullet)}</p></section>` : ''}
+        <section><span class="lab">Supports these roles</span><ul class="plist">${roles.map(r => `<li>${roleLink(r)}${tierPill(r.tier)}</li>`).join('')}</ul></section>`;
+    }
+  }
+  document.addEventListener('click', ev => {
+    const a = ev.target.closest('[data-ev]'); if (a) { select('project', a.getAttribute('data-ev')); $('#map').scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+    const r = ev.target.closest('[data-role]'); if (r) { select('role', r.getAttribute('data-role')); $('#map').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  });
+  function renderLayerSeg() {
+    const n = { fields: D.fields.length, roles: D.roles.length, projects: D.evidence.length };
+    $('#layerSeg').innerHTML = [['fields', 'Fields'], ['roles', 'Job titles'], ['projects', 'Projects']].map(([k, l]) => `<button type="button" id="layer-${k}" data-layer="${k}" aria-pressed="${M.layer === k}">${l} ${n[k]}</button>`).join('');
+  }
+  function initMapControls() {
+    $('#layerSeg').addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b) return; M.layer = b.dataset.layer; renderLayerSeg();
+      if (M.sel && M.sel.kind !== 'cluster') M.sel = null;
+      drawMap();
+      if (!M.sel) { const first = outerList(M.layer)[0]; if (first) M.sel = { kind: first.kind, key: first.key }; }
+      paint(); renderPanel();
+    });
+    $('#zIn').addEventListener('click', () => zoomBy(0.8));
+    $('#zOut').addEventListener('click', () => zoomBy(1.25));
+    $('#zReset').addEventListener('click', () => setView({ ...M.base, layer: M.layer }));
+    const svg = $('#mapSvg');
+    const toSvg = (cx, cy) => { const r = svg.getBoundingClientRect(); return { x: M.view.x + (cx - r.left) / r.width * M.view.w, y: M.view.y + (cy - r.top) / r.height * M.view.h }; };
+    svg.addEventListener('wheel', e => { if (!e.ctrlKey && !e.metaKey) return; e.preventDefault(); const p = toSvg(e.clientX, e.clientY); zoomBy(e.deltaY > 0 ? 1.1 : 0.9, p.x, p.y); }, { passive: false });
+    let drag = null;
+    svg.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse' || e.button !== 0) return; drag = { x: e.clientX, y: e.clientY, v: { ...M.view } }; M.dragMoved = false; });
+    window.addEventListener('pointermove', e => {
+      if (!drag) return; const r = svg.getBoundingClientRect(); const dx = (e.clientX - drag.x) / r.width * drag.v.w, dy = (e.clientY - drag.y) / r.height * drag.v.h;
+      if (Math.abs(e.clientX - drag.x) + Math.abs(e.clientY - drag.y) > 4) { M.dragMoved = true; svg.classList.add('dragging'); }
+      if (M.dragMoved) setView({ ...drag.v, x: drag.v.x - dx, y: drag.v.y - dy });
+    });
+    window.addEventListener('pointerup', () => { drag = null; svg.classList.remove('dragging'); setTimeout(() => { M.dragMoved = false; }, 0); });
+    const inp = $('#mapSearch'), res = $('#searchRes');
+    inp.addEventListener('input', () => {
+      const q = inp.value.trim().toLowerCase(); if (!q) { res.hidden = true; return; }
+      const hits = [
+        ...D.clusters.filter(c => (c.name + ' ' + c.skills.join(' ')).toLowerCase().includes(q)).map(c => ['cluster', c.id, c.name, 'Skill']),
+        ...D.fields.filter(f => f.name.toLowerCase().includes(q)).map(f => ['field', f.id, f.name, 'Field']),
+        ...D.roles.filter(r => r.title.toLowerCase().includes(q)).map(r => ['role', r.id, r.title, 'Job title']),
+        ...D.evidence.filter(e => (e.name + ' ' + (e.summary || '')).toLowerCase().includes(q)).map(e => ['project', e.id, e.name, 'Project'])
+      ].slice(0, 12);
+      res.innerHTML = hits.map(h => `<button type="button" data-k="${h[0]}" data-id="${esc(h[1])}"><span>${esc(h[2])}</span><span class="muted small">${h[3]}</span></button>`).join('') || '<p class="empty" style="padding:8px 10px">Nothing matches.</p>';
+      res.hidden = false;
+    });
+    res.addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; select(b.dataset.k, b.dataset.id); res.hidden = true; inp.value = ''; });
+    inp.addEventListener('keydown', e => { if (e.key === 'Escape') { res.hidden = true; } if (e.key === 'Enter') { const b = res.querySelector('button'); if (b) b.click(); } });
+    document.addEventListener('click', e => { if (!e.target.closest('.grow')) res.hidden = true; });
+  }
+
+  // ---------- combine ----------
+  const SEL = new Set();
+  function renderPicker() {
+    const presets = D.combos.slice(0, 6);
+    $('#picker').innerHTML = D.families.map((f, i) => `<div class="fam-group"><span class="lab">${shape('fam' + (i < 3 ? i + 1 : 0))}${esc(f.name)}</span><div class="toggles">${D.clusters.filter(c => c.family === f.id).map(c => `<button type="button" class="btn" id="tog-${esc(c.id)}" data-c="${esc(c.id)}" aria-pressed="${SEL.has(c.id)}" data-tip="${esc(c.name)}">${esc(c.short || c.name)}</button>`).join('')}</div></div>`).join('') +
+      `<div class="fam-group"><span class="lab">Presets</span><div class="toggles">${presets.map((c, i) => `<button type="button" class="btn" data-preset="${i}">${esc(c.name)}</button>`).join('')}<button type="button" class="btn" data-preset="clear">Clear</button></div></div>`;
+  }
+  function renderResults() {
+    const has = c => SEL.has(c); const res = $('#results');
+    $$('#picker [data-c]').forEach(t => t.setAttribute('aria-pressed', SEL.has(t.dataset.c)));
+    if (!SEL.size) { res.innerHTML = '<p class="empty">Pick at least one skill on the left to see what it opens.</p>'; return; }
+    const full = D.roles.filter(r => r.clusters.length && r.clusters.every(has)).sort((a, b) => b.tier - a.tier);
+    const near = D.roles.filter(r => r.clusters.length > 1 && r.clusters.filter(c => !has(c)).length === 1 && r.clusters.some(has)).sort((a, b) => b.tier - a.tier);
+    const svc = services().filter(s => s.clusters.length && s.clusters.every(has));
+    const combos = D.combos.filter(c => c.clusters.every(has));
+    const nearC = D.combos.filter(c => c.clusters.filter(x => !has(x)).length === 1 && c.clusters.some(has));
+    const fieldsOpen = D.fields.filter(f => [...SEL].some(c => w(f.id, c) >= 3));
+    const pairs = new Set();
+    [...D.roles.map(r => r.clusters), ...D.combos.map(c => c.clusters), ...D.services.map(s => s.clusters), ...D.evidence.map(e => e.clusters)].forEach(a => { for (let i = 0; i < a.length; i++) for (let j = i + 1; j < a.length; j++) pairs.add([a[i], a[j]].sort().join('|')); });
+    const n = D.clusters.length, total = n * (n - 1) / 2;
+    res.innerHTML = `<div class="sum">
+        <div><b>${full.length}</b><span>roles fully covered</span></div><div><b>${near.length}</b><span>one skill away</span></div>
+        <div><b>${svc.length}</b><span>services to sell</span></div><div><b>${fieldsOpen.length}</b><span>fields where a pick is core</span></div>
+        <div><b>${pairs.size}/${total}</b><span>skill pairs proven together</span></div></div>
+      <div class="cols2">
+        <section><span class="eyebrow">Roles covered</span><ul class="rlist">${full.map(r => `<li>${roleLink(r)}<small>${TIERS[r.tier]}${r.proof ? ' · ' + esc(r.proof) : ''}</small></li>`).join('') || '<li class="near"><span class="empty">No role uses only these skills. Add one more.</span></li>'}</ul></section>
+        <section><span class="eyebrow">One skill away</span><ul class="rlist">${near.slice(0, 8).map(r => `<li class="near">${roleLink(r)}<small>Add ${esc(D.C[r.clusters.find(c => !has(c))].short)} · ${TIERS[r.tier]}</small></li>`).join('') || '<li class="near"><span class="empty">Nothing close.</span></li>'}</ul></section>
+        <section><span class="eyebrow">Services to sell</span><ul class="rlist">${svc.map(s => `<li><span>${esc(s.name)}</span><small>${esc([s.band, s.time].filter(Boolean).join(' · '))}</small></li>`).join('') || '<li class="near"><span class="empty">No service needs exactly these. Try a preset.</span></li>'}</ul></section>
+        <section><span class="eyebrow">Signature combinations</span><ul class="rlist">${combos.map(c => `<li><span>${esc(c.name)}</span><small>${esc(c.offer || '')}</small></li>`).join('')}${nearC.slice(0, 4).map(c => `<li class="near"><span>${esc(c.name)}</span><small>Add ${esc(D.C[c.clusters.find(x => !has(x))].short)}</small></li>`).join('')}${!combos.length && !nearC.length ? '<li class="near"><span class="empty">None yet.</span></li>' : ''}</ul></section>
+      </div>`;
+  }
+  function initPicker() {
+    $('#picker').addEventListener('click', e => {
+      const b = e.target.closest('button'); if (!b) return;
+      if (b.dataset.c) { SEL.has(b.dataset.c) ? SEL.delete(b.dataset.c) : SEL.add(b.dataset.c); }
+      else if (b.dataset.preset === 'clear') SEL.clear();
+      else if (b.dataset.preset != null) { SEL.clear(); D.combos[+b.dataset.preset].clusters.forEach(c => SEL.add(c)); }
+      renderResults();
+    });
+  }
+
+  // ---------- job match ----------
+  const SAMPLE_JD = `Senior Trading Systems Engineer (Remote)
+
+We are a crypto derivatives venue looking for an engineer to build and run our market-making and options infrastructure.
+
+You will:
+- Build low-latency execution services and risk controls for perps and options
+- Own pricing: implied volatility surfaces, Greeks and Monte Carlo models
+- Ship internal tools in TypeScript and React, backend services in Rust or Python
+- Run services on Docker and Cloudflare with good monitoring
+- Work with researchers to backtest strategies honestly before they trade
+
+Nice to have: Solidity or Solana programs, Hummingbot experience, LLM agents for operations.`;
+  function kwHit(text, kw) {
+    const k = kw.toLowerCase().trim(); if (!k) return false;
+    const escd = k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp('(^|[^a-z0-9])' + escd + '([^a-z0-9]|$)').test(text);
+  }
+  function matchJob(text) {
+    const t = text.toLowerCase();
+    const hits = {}, sc = {};
+    D.clusters.forEach(c => { hits[c.id] = c.keywords.filter(k => kwHit(t, k)); sc[c.id] = Math.min(1, hits[c.id].length / 3); });
+    const totalAsk = D.cids.reduce((a, c) => a + sc[c], 0);
+    const roles = D.roles.map(r => {
+      if (!r.clusters.length || !totalAsk) return { r, score: 0 };
+      const cover = r.clusters.reduce((a, c) => a + sc[c], 0);
+      const roleSide = cover / r.clusters.length, jdSide = cover / totalAsk;
+      const kwBonus = (r.keywords || []).filter(k => kwHit(t, k)).length * 0.05;
+      return { r, score: Math.min(1, 0.45 * roleSide + 0.45 * jdSide + kwBonus + (r.tier - 2) * 0.03) };
+    }).sort((a, b) => b.score - a.score);
+    const depthOnAsk = totalAsk ? D.cids.reduce((a, c) => a + sc[c] * (D.C[c].depth / 5), 0) / totalAsk : 0;
+    const askedAll = D.cids.filter(c => hits[c].length > 0).sort((a, b) => hits[b].length - hits[a].length);
+    const asked = askedAll.filter(c => hits[c].length >= 2).length ? askedAll.filter(c => hits[c].length >= 2) : askedAll.slice(0, 3);
+    const thin = asked.filter(c => D.C[c].depth <= 2);
+    const ev = evidenceFor(asked.slice(0, 4), 4);
+    const title = (text.split('\n').map(s => s.trim()).find(Boolean) || 'this role').replace(/\s*\(.*?\)\s*$/, '').slice(0, 80);
+    return { hits, sc, roles, depthOnAsk, asked, thin, ev, title, totalAsk };
+  }
+  function renderMatch() {
+    const text = $('#jd').value; const out = $('#jdOut');
+    if (text.trim().length < 40) { out.innerHTML = '<p class="empty">Paste a job post of at least a few lines, then select Match.</p>'; return; }
+    const m = matchJob(text);
+    if (!m.totalAsk) { out.innerHTML = '<p class="empty">None of the profile keywords appear in this post. Add keywords to the clusters in the profile file, or try another post.</p>'; return; }
+    const top = m.roles[0], p = D.person;
+    const softLower = s => /^[A-Z][a-z]/.test(s) ? s[0].toLowerCase() + s.slice(1) : s;
+    const askNames = m.asked.slice(0, 3).map(c => softLower(D.C[c].name));
+    const hl = (p.headline || '').replace(/\.$/, ''); const hlLower = /^[A-Z][a-z]/.test(hl) ? hl[0].toLowerCase() + hl.slice(1) : hl;
+    const opening = `Hi,\n\nI'm ${p.name || 'applying'}${hl ? ', ' + hlLower : ''}. The ${m.title} role asks for ${askNames.slice(0, -1).join(', ')}${askNames.length > 1 ? ' and ' : ''}${askNames[askNames.length - 1]}. That is the work I already do:\n\n${m.ev.map(e => '- ' + (e.bullet || e.summary || e.name)).join('\n')}\n\nI would like to talk about how this maps to your team's roadmap.`;
+    const headline = `${top.r.title} · ${m.asked.slice(0, 3).map(c => D.C[c].short).join(' · ')}`;
+    out.innerHTML = `
+      <div class="sum">
+        <div><b>${Math.round(top.score * 100)}%</b><span>match with ${esc(top.r.title)}</span></div>
+        <div><b>${Math.round(m.depthOnAsk * 100)}%</b><span>your depth on what they ask</span></div>
+        <div><b>${m.asked.length}</b><span>skill clusters the post asks for</span></div>
+      </div>
+      <div class="cols2">
+        <section><span class="eyebrow">Closest roles</span><ul class="rlist">${m.roles.slice(0, 4).map(x => `<li>${roleLink(x.r)}<div class="meter"><div class="meter-track"><i style="width:${Math.round(x.score * 100)}%"></i></div><small>${Math.round(x.score * 100)}% · ${TIERS[x.r.tier]}</small></div></li>`).join('')}</ul></section>
+        <section><span class="eyebrow">What the post asks for</span><ul class="rlist">${m.asked.slice(0, 7).map(c => `<li><span>${esc(D.C[c].name)} ${depthBar(D.C[c].depth)}</span><small>${esc(m.hits[c].slice(0, 5).join(', '))}</small></li>`).join('')}</ul>
+          ${m.thin.length ? `<p class="small muted">Thin spots to address: ${m.thin.map(c => esc(D.C[c].name)).join(', ')}.</p>` : ''}</section>
+      </div>
+      <section class="box"><span class="eyebrow">Projects to cite</span><ul class="ul">${m.ev.map(e => `<li>${evLink(e)}: ${esc(e.bullet || e.summary || '')}</li>`).join('')}</ul></section>
+      <section class="box"><div class="copyrow"><span class="eyebrow">Draft opening</span><button type="button" class="btn" id="cpOpen">Copy</button></div><div class="draft" id="openTxt">${esc(opening)}</div></section>
+      <section class="box"><div class="copyrow"><span class="eyebrow">Profile headline for this kind of role</span><button type="button" class="btn" id="cpHead">Copy</button></div><div class="draft" id="headTxt">${esc(headline)}</div></section>`;
+    $('#cpOpen').addEventListener('click', e => copyText(opening, e.currentTarget));
+    $('#cpHead').addEventListener('click', e => copyText(headline, e.currentTarget));
+  }
+  function initMatch() {
+    $('#jd').value = (D && D.matchSample) || SAMPLE_JD;
+    $('#jdRun').addEventListener('click', () => { if (D) renderMatch(); });
+    $('#jdSample').addEventListener('click', () => { $('#jd').value = (D && D.matchSample) || SAMPLE_JD; if (D) renderMatch(); });
+  }
+
+  // ---------- roles ----------
+  let tierF = 0;
+  function renderRoleFilters() {
+    $('#fieldSel').innerHTML = `<option value="">All ${D.fields.length} fields</option>` + D.fields.map(f => `<option value="${esc(f.id)}">${esc(f.name)}</option>`).join('');
+    const c = t => D.roles.filter(r => r.tier === t).length;
+    $('#tierSeg').innerHTML = [[0, `All ${D.roles.length}`], [3, `Strong ${c(3)}`], [2, `Good ${c(2)}`], [1, `Stretch ${c(1)}`]].map(([v, l]) => `<button type="button" id="tier-${v}" data-t="${v}" aria-pressed="${v === tierF}">${l}</button>`).join('');
+  }
+  function cvFor(r) {
+    const ev = evidenceFor(r.clusters, 5);
+    return { headline: `${r.title}. ${D.person.headline || ''}`.trim(), bullets: ev.map(e => e.bullet || e.summary || e.name) };
+  }
+  function renderRoles() {
+    const fv = $('#fieldSel').value, q = $('#roleSearch').value.trim().toLowerCase();
+    const list = D.roles.filter(r => (!fv || r.fields.includes(fv)) && (!tierF || r.tier === tierF) && (!q || (r.title + ' ' + (r.proof || '')).toLowerCase().includes(q))).sort((a, b) => b.tier - a.tier);
+    $('#roleCount').textContent = `Showing ${list.length} of ${D.roles.length}`;
+    $('#roleCards').innerHTML = list.map(r => `
+      <article class="card">
+        <div class="top">${tierPill(r.tier)}<button type="button" class="btn" data-cv="${esc(r.id)}" aria-expanded="false">CV angle</button></div>
+        <h3>${esc(r.title)}</h3>
+        <div class="fields">${r.fields.map(id => esc(D.F[id].short || D.F[id].name)).join(' · ')}</div>
+        <div class="chips">${r.clusters.map(chip).join('')}</div>
+        ${r.proof ? `<p>${esc(r.proof)}</p>` : ''}
+        ${r.gap ? `<p class="note">${esc(r.gap)}</p>` : ''}
+        <div class="cv" id="cv-${esc(r.id)}" hidden></div>
+      </article>`).join('') || '<p class="empty">No titles match these filters.</p>';
+  }
+  function initRoles() {
+    $('#tierSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; tierF = +b.dataset.t; $$('#tierSeg button').forEach(x => x.setAttribute('aria-pressed', +x.dataset.t === tierF)); renderRoles(); });
+    $('#fieldSel').addEventListener('change', renderRoles);
+    $('#roleSearch').addEventListener('input', renderRoles);
+    $('#roleCards').addEventListener('click', e => {
+      const b = e.target.closest('[data-cv]'); if (!b) return;
+      const r = D.R[b.dataset.cv], box = $('#cv-' + CSS.escape(r.id)); const open = box.hidden;
+      box.hidden = !open; b.setAttribute('aria-expanded', open);
+      if (open) {
+        const cv = cvFor(r); const text = cv.headline + '\n\n' + cv.bullets.map(x => '- ' + x).join('\n');
+        box.innerHTML = `<strong>${esc(cv.headline)}</strong><ul>${cv.bullets.map(x => `<li>${esc(x)}</li>`).join('')}</ul><div class="copyrow"><button type="button" class="btn" data-copycv="${esc(r.id)}">Copy for a CV</button></div>`;
+        box.querySelector('[data-copycv]').addEventListener('click', ev => copyText(text, ev.currentTarget));
+      }
+    });
+  }
+
+  // ---------- matrix ----------
+  let mxSort = 'total';
+  function renderMatrix() {
+    const LV = ['not used', 'touches it', 'solid', 'core'];
+    const rows = [...D.fields].sort((a, b) => mxSort === 'total' ? b.total - a.total : (w(b.id, mxSort) - w(a.id, mxSort)) || (b.total - a.total));
+    const maxT = Math.max(1, ...D.fields.map(f => f.total));
+    $('#mx').innerHTML = `<thead><tr><th scope="col" style="text-align:left;padding-left:4px">Field</th>${D.clusters.map(c => `<th scope="col"><button type="button" data-sort="${esc(c.id)}" aria-pressed="${mxSort === c.id}" data-tip="Sort by ${esc(c.name)}">${shape(famCls(c.id))}${esc(c.short || c.name)}</button></th>`).join('')}<th scope="col" style="text-align:left;padding-left:10px"><button type="button" data-sort="total" aria-pressed="${mxSort === 'total'}">Total fit</button></th></tr></thead>
+      <tbody>${rows.map(f => `<tr><th scope="row"><button type="button" class="linkish" data-field="${esc(f.id)}">${esc(f.name)}</button></th>${D.clusters.map(c => { const v = Math.max(0, Math.min(3, w(f.id, c.id))); return `<td class="c v${v}" data-tip="${esc(f.short || f.name)} × ${esc(c.short || c.name)}: ${LV[v]}">${v || '·'}</td>`; }).join('')}<td class="tot"><span class="bar"><i style="width:${(f.total / maxT * 90).toFixed(0)}px"></i><span>${f.total}</span></span></td></tr>`).join('')}</tbody>`;
+  }
+  function initMatrix() {
+    $('#mx').addEventListener('click', e => {
+      const s = e.target.closest('[data-sort]'); if (s) { mxSort = s.dataset.sort; renderMatrix(); return; }
+      const f = e.target.closest('[data-field]'); if (f) { select('field', f.dataset.field); $('#map').scrollIntoView({ behavior: 'smooth' }); }
+    });
+  }
+
+  // ---------- research, patterns, combos ----------
+  function renderResearch() {
+    $('#research').hidden = !D.research.length;
+    $('#researchCards').innerHTML = D.research.map(r => `
+      <article class="card rcard">
+        <div class="top"><span class="st ${STATUS_CLASS[r.status] || ''}">${esc(r.label || r.status || '')}</span></div>
+        <h3>${esc(r.title)}</h3>
+        ${r.clusters ? `<div class="chips">${r.clusters.filter(c => D.C[c]).map(chip).join('')}</div>` : ''}
+        <dl>
+          ${r.question ? `<dt>Question</dt><dd>${esc(r.question)}</dd>` : ''}
+          ${r.method ? `<dt>Method</dt><dd>${esc(r.method)}</dd>` : ''}
+          ${r.result ? `<dt>Result</dt><dd>${esc(r.result)}</dd>` : ''}
+          ${r.next ? `<dt>Next</dt><dd>${esc(r.next)}</dd>` : ''}
+          ${r.open ? `<dt>Open</dt><dd class="offer">${esc(r.open)}</dd>` : ''}
+        </dl>
+        ${(r.links || []).length ? `<div class="chips">${r.links.map(l => `<a class="chip" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.label)}</a>`).join('')}</div>` : ''}
+      </article>`).join('');
+  }
+  function renderPatterns() {
+    $('#thinking').hidden = !D.patterns.length;
+    $('#patterns').innerHTML = D.patterns.map(p => `<div class="pat"><h3>${esc(p.name)}</h3><p>${esc(p.description)}</p>${p.evidence ? `<small>Seen in: ${esc(p.evidence)}</small>` : ''}${p.risk ? `<small>Watch: ${esc(p.risk)}</small>` : ''}</div>`).join('');
+  }
+  function renderCombos() {
+    $('#combos').hidden = !D.combos.length;
+    $('#comboCards').innerHTML = D.combos.map(c => `
+      <article class="card combo">
+        <h3>${esc(c.name)}</h3>
+        <div class="formula">${c.clusters.map(chip).join('<span class="x">×</span>')}</div>
+        <dl>${c.buyers ? `<dt>Buyers</dt><dd>${esc(c.buyers)}</dd>` : ''}${c.proof ? `<dt>Proof</dt><dd>${esc(c.proof)}</dd>` : ''}${c.offer ? `<dt>Offer</dt><dd class="offer">${esc(c.offer)}</dd>` : ''}</dl>
+      </article>`).join('');
+  }
+
+  // ---------- stack ----------
+  function renderStack() {
+    $('#stack').hidden = !D.services.length;
+    $('#priceNote').textContent = D.priceNote || '';
+    const layers = D.layers.length ? D.layers : [...new Set(D.services.map(s => s.layer))].map(n => ({ name: n }));
+    $('#stackBox').innerHTML = layers.map(l => {
+      const items = D.services.filter(s => s.layer === l.name); if (!items.length) return '';
+      return `<div class="layer"><div class="layer-head"><span class="lab">${items.length} ${items.length === 1 ? 'item' : 'items'}</span><h3>${esc(l.name)}</h3>${l.note ? `<p>${esc(l.note)}</p>` : ''}</div>
+        <div>${items.map(s => `<div class="svc"><div><h4>${esc(s.name)}</h4>${s.desc ? `<p>${esc(s.desc)}</p>` : ''}</div>
+          <div style="display:grid;gap:6px;min-width:0"><div class="chips">${s.clusters.map(chip).join('')}</div>${s.proof ? `<span class="proof">Proof: ${esc(s.proof)}</span>` : ''}</div>
+          <div class="price"><b>${esc(s.band || '')}</b><span>${esc(s.time || '')}</span></div></div>`).join('')}</div></div>`;
+    }).join('');
+  }
+
+  // ---------- lane ----------
+  function renderLane() {
+    const parts = [];
+    if (D.lane.length) parts.push(`<div class="box"><h3>Where to point the atlas</h3><ul class="lane-list">${D.lane.map(l => `<li><b>${esc(l.label)}</b><span><strong>${esc(l.title)}</strong> ${esc(l.text || '')}</span></li>`).join('')}</ul></div>`);
+    if (D.money && (D.money.items || []).length) {
+      const mx = Math.max(...D.money.items.map(m => m[1])), tot = D.money.items.reduce((a, m) => a + m[1], 0);
+      const k = v => '$' + (v >= 1000 ? (v / 1000).toFixed(v % 1000 ? 1 : 0) + 'k' : v);
+      parts.push(`<div class="box"><h3>${esc(D.money.title || 'Revenue path')}</h3><div class="money">${D.money.items.map(([l, v]) => `<div class="money-row"><span>${esc(l)}</span><span><i style="width:${(v / mx * 100).toFixed(0)}%"></i></span><span>${k(v)}</span></div>`).join('')}<div class="money-total"><span>Total</span><span class="mono">${k(tot)}</span></div></div>${D.money.note ? `<p class="small muted">${esc(D.money.note)}</p>` : ''}</div>`);
+    }
+    if (D.gaps.length) parts.push(`<div class="box"><h3>Gaps a buyer will ask about</h3><ul class="ul">${D.gaps.map(g => `<li>${esc(g)}</li>`).join('')}</ul></div>`);
+    if (D.strengths.length) parts.push(`<div class="box"><h3>Strengths that hold up</h3><ul class="ul">${D.strengths.map(g => `<li>${esc(g)}</li>`).join('')}</ul></div>`);
+    $('#lane').hidden = !parts.length; $('#laneBox').innerHTML = parts.join('');
+  }
+
+  // ---------- ledger ----------
+  let ledState = 'all';
+  function renderLedger() {
+    const q = $('#ledSearch').value.trim().toLowerCase();
+    const st = e => e.status === 'live' ? 'live' : e.status === 'preview' ? 'preview' : 'other';
+    const counts = { all: D.evidence.length, live: D.evidence.filter(e => st(e) === 'live').length, preview: D.evidence.filter(e => st(e) === 'preview').length, other: D.evidence.filter(e => st(e) === 'other').length };
+    $('#ledSeg').innerHTML = [['all', 'All'], ['live', 'Live'], ['preview', 'Preview or testnet'], ['other', 'Research or local']].map(([k, l]) => `<button type="button" data-s="${k}" aria-pressed="${ledState === k}">${l} ${counts[k]}</button>`).join('');
+    const keep = e => (ledState === 'all' || st(e) === ledState) && (!q || (e.name + ' ' + (e.summary || '')).toLowerCase().includes(q));
+    const famOf = e => { const f = {}; e.clusters.forEach(c => { const fam = D.C[c].family; f[fam] = (f[fam] || 0) + 1; }); return Object.entries(f).sort((a, b) => b[1] - a[1])[0]?.[0] || D.families[0].id; };
+    $('#ledgerBox').innerHTML = D.families.map((f, i) => {
+      const rows = D.evidence.filter(e => famOf(e) === f.id && keep(e));
+      return `<section><h3>${shape('fam' + (i < 3 ? i + 1 : 0))}${esc(f.name)} <span class="muted small mono">${rows.length}</span></h3><ul class="led">${rows.map(e => `<li><button type="button" data-ev="${esc(e.id)}"><span class="row"><span class="nm">${esc(e.name)}</span>${stPill(e)}</span><small>${esc(e.summary || '')}</small></button></li>`).join('') || '<li><span class="empty" style="display:block;padding:9px 12px">Nothing here.</span></li>'}</ul></section>`;
+    }).join('');
+  }
+  function initLedger() {
+    $('#ledSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; ledState = b.dataset.s; renderLedger(); });
+    $('#ledSearch').addEventListener('input', renderLedger);
+  }
+
+  // ---------- make yours ----------
+  function renderMake() {
+    const steps = D.makeSteps || [
+      'Install the skill in your coding agent: <code>npx skills add David-glitc/skill-atlas --skill skill-atlas</code>.',
+      'Ask your agent: <em>"Build my skill atlas from my projects and GitHub."</em> It scans your folders and repos, asks before reading anything private, and writes <code>profile.json</code>.',
+      'Review the profile with your agent. Fix depths, tiers and wording until every claim points at real work.',
+      'Run the build script to get your own HTML page, or drop the JSON on this page to preview it.'
+    ];
+    $('#makeSteps').innerHTML = steps.map(s => `<li>${s}</li>`).join('');
+  }
+  function loadRaw(raw, msg) {
+    try { const d = normalize(raw); D = d; M.sel = null; M.view = null; M.layer = 'fields'; SEL.clear(); renderAll(); $('#dropMsg').textContent = msg || 'Profile loaded.'; $('#app').scrollIntoView(); }
+    catch (e) { $('#dropMsg').innerHTML = `<span class="err">That file could not be rendered: ${esc(e.message)}</span>`; }
+  }
+  function initMake() {
+    const drop = $('#drop');
+    const readFile = f => { const r = new FileReader(); r.onload = () => { try { loadRaw(JSON.parse(r.result), 'Showing ' + f.name + '. Nothing was uploaded.'); } catch (e) { $('#dropMsg').innerHTML = `<span class="err">Not valid JSON: ${esc(e.message)}</span>`; } }; r.readAsText(f); };
+    $('#fileIn').addEventListener('change', e => { if (e.target.files[0]) readFile(e.target.files[0]); });
+    ['dragenter', 'dragover'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add('over'); }));
+    ['dragleave', 'drop'].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove('over'); }));
+    drop.addEventListener('drop', e => { const f = e.dataTransfer.files[0]; if (f) readFile(f); });
+    $('#resetData').addEventListener('click', () => loadRaw(ORIGINAL, 'Back to the original profile.'));
+    $('#copyJson').addEventListener('click', e => { const raw = JSON.stringify(stripDerived(D), null, 2); copyText(raw, e.currentTarget, $('#dropMsg')); });
+    $('#pasteGo').addEventListener('click', () => { try { loadRaw(JSON.parse($('#pasteJson').value), 'Showing the pasted profile.'); } catch (e) { $('#dropMsg').innerHTML = `<span class="err">Not valid JSON: ${esc(e.message)}</span>`; } });
+  }
+  function stripDerived(d) {
+    const o = JSON.parse(JSON.stringify({ ...d, C: undefined, F: undefined, R: undefined, E: undefined, cids: undefined, famIndex: undefined }));
+    (o.fields || []).forEach(f => delete f.total); return o;
+  }
+
+  // ---------- scrollspy ----------
+  function initToc() {
+    const links = $$('#toc a'); const ids = links.map(a => a.getAttribute('href').slice(1));
+    const onScroll = () => { let cur = ids[0]; ids.forEach(id => { const s = document.getElementById(id); if (s && !s.hidden && s.getBoundingClientRect().top < 120) cur = id; }); links.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + cur)); };
+    addEventListener('scroll', onScroll, { passive: true }); onScroll();
+  }
+
+  function renderAll() {
+    renderHeader(); renderLayerSeg(); drawMap();
+    if (!M.sel) { const top = [...D.fields].sort((a, b) => b.total - a.total)[0]; if (top) M.sel = { kind: 'field', key: top.id }; }
+    paint(); renderPanel();
+    if (!SEL.size && D.combos[0]) D.combos[0].clusters.forEach(c => SEL.add(c));
+    renderPicker(); renderResults();
+    $('#jd').value = D.matchSample || SAMPLE_JD; renderMatch();
+    renderRoleFilters(); renderRoles(); renderMatrix(); renderResearch(); renderPatterns(); renderCombos(); renderStack(); renderLane(); renderLedger(); renderMake();
+  }
+
+  try { D = normalize(ORIGINAL); }
+  catch (e) { $('#head').innerHTML = `<div class="err">This atlas has no valid profile data: ${esc(e.message)}. Drop a profile.json in the last section.</div>`; D = null; }
+  initMapControls(); initPicker(); initMatch(); initRoles(); initMatrix(); initLedger(); initMake(); initToc();
+  if (D) renderAll();
+})();
+</script>

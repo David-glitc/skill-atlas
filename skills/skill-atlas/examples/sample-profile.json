@@ -1,0 +1,74 @@
+{
+  "schema": "skill-atlas/1",
+  "person": {
+    "name": "Ada Example",
+    "headline": "Backend and data engineer for payments products",
+    "summary": "A fictional profile that shows every part of the format. Replace it with real evidence.",
+    "location": "Remote",
+    "generated": "1 Jan 2027",
+    "links": [{ "label": "GitHub", "url": "https://github.com/" }],
+    "sources": "Fictional example data."
+  },
+  "stats": [
+    { "value": "24", "label": "repos of her own" },
+    { "value": "3", "label": "products in production" },
+    { "value": "1", "label": "published package" }
+  ],
+  "families": [
+    { "id": "dom", "name": "Domain" },
+    { "id": "eng", "name": "Engineering" },
+    { "id": "ppl", "name": "People" }
+  ],
+  "clusters": [
+    { "id": "P", "name": "Payments & ledgers", "short": "Payments", "family": "dom", "depth": 4, "skills": ["Stripe", "double-entry ledgers", "reconciliation"], "keywords": ["payments", "stripe", "ledger", "reconciliation", "billing", "fintech", "checkout", "invoicing"] },
+    { "id": "D", "name": "Data engineering", "short": "Data", "family": "dom", "depth": 3, "skills": ["dbt", "Postgres", "event pipelines"], "keywords": ["data pipeline", "etl", "dbt", "warehouse", "sql", "analytics", "airflow"] },
+    { "id": "B", "name": "Backend services", "short": "Backend", "family": "eng", "depth": 5, "skills": ["Go", "Node", "gRPC", "Postgres"], "keywords": ["backend", "go", "golang", "node.js", "grpc", "microservices", "postgres", "api design"] },
+    { "id": "O", "name": "Cloud & operations", "short": "Ops", "family": "eng", "depth": 3, "skills": ["AWS", "Terraform", "on-call"], "keywords": ["aws", "terraform", "kubernetes", "devops", "on-call", "observability"] },
+    { "id": "W", "name": "Technical writing", "short": "Writing", "family": "ppl", "depth": 3, "skills": ["API docs", "runbooks", "blog posts"], "keywords": ["documentation", "technical writing", "docs", "runbooks"] },
+    { "id": "M", "name": "Mentoring & leadership", "short": "Mentoring", "family": "ppl", "depth": 2, "skills": ["onboarding", "code review"], "keywords": ["mentoring", "tech lead", "leadership", "code review"] }
+  ],
+  "fields": [
+    { "id": "fintech", "name": "Fintech", "short": "Fintech", "want": "Teams moving and recording money correctly.", "weights": { "P": 3, "D": 2, "B": 3, "O": 2, "W": 1 } },
+    { "id": "data", "name": "Data platforms", "short": "Data platforms", "want": "Teams that need reliable pipelines.", "weights": { "D": 3, "B": 2, "O": 2, "W": 1 } },
+    { "id": "devtools", "name": "Developer tools", "short": "Dev tools", "want": "API-first products with good docs.", "weights": { "B": 3, "O": 1, "W": 3, "M": 1 } },
+    { "id": "infra", "name": "Cloud infrastructure", "short": "Cloud", "want": "Teams that run services at scale.", "weights": { "B": 2, "O": 3 } }
+  ],
+  "roles": [
+    { "id": "be", "title": "Backend Engineer", "tier": 3, "fields": ["fintech", "devtools"], "clusters": ["B", "O"], "proof": "Ledger service, Payouts API." },
+    { "id": "pay", "title": "Payments Engineer", "tier": 3, "fields": ["fintech"], "clusters": ["P", "B"], "proof": "Payouts API, reconciliation jobs." },
+    { "id": "de", "title": "Data Engineer", "tier": 2, "fields": ["data", "fintech"], "clusters": ["D", "B"], "proof": "Reconciliation pipeline.", "gap": "No warehouse at scale yet." },
+    { "id": "sre", "title": "Site Reliability Engineer", "tier": 2, "fields": ["infra"], "clusters": ["O", "B"], "proof": "On-call for the ledger service.", "gap": "No Kubernetes in production." },
+    { "id": "tw", "title": "Developer Docs Engineer", "tier": 2, "fields": ["devtools"], "clusters": ["W", "B"], "proof": "Payouts API docs." },
+    { "id": "tl", "title": "Tech Lead", "tier": 1, "fields": ["fintech", "devtools"], "clusters": ["M", "B", "W"], "proof": "Mentored two juniors.", "gap": "Needs a team lead title or a led project." }
+  ],
+  "combos": [
+    { "name": "Money-correct backends", "clusters": ["P", "B", "D"], "buyers": "Fintech startups", "proof": "Ledger service and reconciliation pipeline", "offer": "Ledger and reconciliation build" },
+    { "name": "APIs people can use", "clusters": ["B", "W"], "buyers": "API-first companies", "proof": "Payouts API with docs", "offer": "API and docs package" }
+  ],
+  "layers": [
+    { "name": "Lead offers", "note": "Highest value." },
+    { "name": "Own products", "note": "Already running." }
+  ],
+  "priceNote": "Example bands only.",
+  "services": [
+    { "layer": "Lead offers", "name": "Ledger and reconciliation build", "desc": "Double-entry ledger with daily reconciliation.", "clusters": ["P", "B", "D"], "proof": "Ledger service", "band": "$8k–15k", "time": "4 weeks" },
+    { "layer": "Lead offers", "name": "API and docs package", "desc": "A clean API with reference docs and guides.", "clusters": ["B", "W"], "proof": "Payouts API", "band": "$4k–8k", "time": "2 weeks" },
+    { "layer": "Own products", "product": true, "name": "tinyledger", "desc": "Open-source ledger library.", "clusters": ["P", "B"], "proof": "Package registry", "band": "Open source", "time": "Published" }
+  ],
+  "research": [
+    { "title": "Reconciliation drift", "status": "research", "label": "Write-up", "clusters": ["P", "D"], "question": "Why do daily balances drift?", "method": "Replayed 90 days of payouts.", "result": "Timezone cut-offs caused 92% of drift.", "next": "Publish the fix as a library option." }
+  ],
+  "patterns": [
+    { "name": "You make money paths boring", "description": "Correctness first, then speed.", "evidence": "Ledger service, tinyledger" }
+  ],
+  "lane": [{ "label": "Lead", "title": "Payments backend engineer.", "text": "Ledgers, payouts and reconciliation." }],
+  "gaps": ["No team-lead title yet."],
+  "strengths": ["Production payments code with on-call history."],
+  "evidence": [
+    { "id": "ledger", "name": "Ledger service", "clusters": ["P", "B", "O"], "status": "live", "label": "Production", "summary": "Double-entry ledger handling daily payouts.", "bullet": "Built and ran a double-entry ledger service for daily payouts." },
+    { "id": "payouts", "name": "Payouts API", "clusters": ["B", "W", "P"], "status": "live", "label": "Production", "summary": "Public API with reference docs.", "bullet": "Designed a public payouts API and wrote its reference docs." },
+    { "id": "recon", "name": "Reconciliation pipeline", "clusters": ["D", "P"], "status": "preview", "label": "Beta", "summary": "Daily reconciliation in dbt.", "bullet": "Built a dbt reconciliation pipeline that cut balance drift." },
+    { "id": "tinyledger", "name": "tinyledger", "clusters": ["P", "B"], "status": "live", "label": "Published", "summary": "Open-source ledger library." },
+    { "id": "mentor", "name": "Mentoring", "clusters": ["M", "W"], "status": "research", "label": "Ongoing", "summary": "Mentored two junior engineers." }
+  ]
+}
